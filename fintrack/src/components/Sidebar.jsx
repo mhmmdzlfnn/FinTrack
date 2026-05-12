@@ -60,7 +60,7 @@ export default function Sidebar() {
             fontSize: 13, fontWeight: 700, color: '#000', fontFamily: 'var(--font-display)'
           }}>RD</div>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600 }}>Rizky D.</div>
+            <div style={{ fontSize: 13, fontWeight: 600 }}>ZULFANN</div>
             <div style={{ fontSize: 11, color: 'var(--muted)' }}>Mahasiswa</div>
           </div>
         </div>

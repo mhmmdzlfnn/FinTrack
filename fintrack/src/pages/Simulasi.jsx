@@ -49,13 +49,6 @@ export default function Simulasi() {
         </div>
       </div>
 
-      {/* FORMULA */}
-      <div className="card" style={{ marginBottom: 20, textAlign: 'center' }}>
-        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 18, color: 'var(--muted)', letterSpacing: 2 }}>
-          A = P × (1 + r/n)^(nt) + PMT × [(1 + r/n)^(nt) − 1] / (r/n)
-        </div>
-      </div>
-
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 24 }}>
         {/* INPUTS */}
         <div className="card">
