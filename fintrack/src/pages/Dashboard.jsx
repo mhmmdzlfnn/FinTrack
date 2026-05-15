@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import TransaksiModal from '../components/TransaksiModal'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Legend } from 'recharts'
 
@@ -27,10 +28,14 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const { user } = useAuth()
 
   const fetchTransactions = async () => {
     setLoading(true)
-    const { data } = await supabase.from('transactions').select('*').order('created_at', { ascending: false }).limit(50)
+    const { data } = await supabase.from('transactions').select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(50)
     setTransactions(data || [])
     setLoading(false)
   }

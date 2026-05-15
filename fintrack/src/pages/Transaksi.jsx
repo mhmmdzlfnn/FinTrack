@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import TransaksiModal from '../components/TransaksiModal'
 
 const catEmoji = { Makan:'🍜', Transport:'🚌', Nongkrong:'☕', Kuota:'📱', Akademik:'📚', Pemasukan:'💰' }
@@ -19,10 +20,13 @@ export default function Transaksi() {
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('')
   const [filterType, setFilterType] = useState('')
+  const { user } = useAuth()
 
   const fetchTransactions = async () => {
     setLoading(true)
-    const { data } = await supabase.from('transactions').select('*').order('created_at', { ascending: false })
+    const { data } = await supabase.from('transactions').select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
     setTransactions(data || [])
     setLoading(false)
   }

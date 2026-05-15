@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 
 export default function TransaksiModal({ onClose, onSuccess }) {
   const [form, setForm] = useState({ name: '', cat: 'Makan', amount: '', type: 'pengeluaran' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const { user } = useAuth()
 
   const handleSubmit = async () => {
     if (!form.name || !form.amount) return setError('Lengkapi semua field ya!')
@@ -15,7 +17,8 @@ export default function TransaksiModal({ onClose, onSuccess }) {
       cat: form.cat,
       amount: parseInt(form.amount),
       type: form.type,
-      date: new Date().toISOString().slice(0, 10)
+      date: new Date().toISOString().slice(0, 10),
+      user_id: user.id
     }])
     setLoading(false)
     if (error) return setError('Gagal simpan: ' + error.message)

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 
 const colorOptions = ['fill-neon', 'fill-blue', 'fill-orange']
 
@@ -17,10 +18,13 @@ export default function Target() {
   const [form, setForm] = useState({ name: '', goal: '', saved: '', color: 'fill-neon' })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const { user } = useAuth()
 
   const fetchTargets = async () => {
     setLoading(true)
-    const { data } = await supabase.from('targets').select('*').order('created_at', { ascending: false })
+    const { data } = await supabase.from('targets').select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
     setTargets(data || [])
     setLoading(false)
   }
@@ -34,7 +38,8 @@ export default function Target() {
       name: form.name,
       goal: parseInt(form.goal),
       saved: parseInt(form.saved) || 0,
-      color: form.color
+      color: form.color,
+      user_id: user.id
     }])
     setSaving(false)
     if (error) return setError('Gagal: ' + error.message)

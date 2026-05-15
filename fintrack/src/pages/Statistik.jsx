@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, LineChart, Line } from 'recharts'
 
 const catColors = { Makan:'#00f5c4', Transport:'#4d9fff', Nongkrong:'#f5a623', Kuota:'#ff4d6d', Akademik:'#a78bfa', Pemasukan:'#34d399' }
@@ -25,9 +26,12 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function Statistik() {
   const [transactions, setTransactions] = useState([])
   const [loading, setLoading] = useState(true)
+  const { user } = useAuth()
 
   useEffect(() => {
-    supabase.from('transactions').select('*').order('created_at', { ascending: false })
+    supabase.from('transactions').select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
       .then(({ data }) => { setTransactions(data || []); setLoading(false) })
   }, [])
 

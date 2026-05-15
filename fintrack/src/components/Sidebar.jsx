@@ -1,4 +1,5 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 const navItems = [
   { to: '/dashboard', icon: '📊', label: 'Dashboard' },
@@ -9,6 +10,18 @@ const navItems = [
 ]
 
 export default function Sidebar() {
+  const { user, signOut } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    await signOut()
+    navigate('/login')
+  }
+
+  // Ambil inisial dari email
+  const initials = user?.email?.slice(0, 2).toUpperCase() || 'FT'
+  const emailShort = user?.email?.length > 20 ? user.email.slice(0, 18) + '...' : user?.email
+
   return (
     <aside style={{
       position: 'fixed', left: 0, top: 0, bottom: 0, width: 220,
@@ -51,19 +64,31 @@ export default function Sidebar() {
       </nav>
 
       {/* User */}
-      <div style={{ padding: '20px 24px', borderTop: '1px solid var(--border)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ padding: '16px 24px', borderTop: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
           <div style={{
             width: 36, height: 36, borderRadius: '50%',
             background: 'linear-gradient(135deg, var(--neon), var(--neon2))',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 13, fontWeight: 700, color: '#000', fontFamily: 'var(--font-display)'
-          }}>RD</div>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 600 }}>ZULFANN</div>
+            fontSize: 12, fontWeight: 700, color: '#000', fontFamily: 'var(--font-display)',
+            flexShrink: 0
+          }}>{initials}</div>
+          <div style={{ overflow: 'hidden' }}>
+            <div style={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{emailShort}</div>
             <div style={{ fontSize: 11, color: 'var(--muted)' }}>Mahasiswa</div>
           </div>
         </div>
+        <button onClick={handleLogout} style={{
+          width: '100%', padding: '8px 0', background: 'rgba(255,77,109,0.1)',
+          border: '1px solid rgba(255,77,109,0.2)', borderRadius: 8,
+          color: 'var(--red)', fontSize: 12, fontFamily: 'var(--font-body)',
+          fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s'
+        }}
+          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,77,109,0.2)'}
+          onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,77,109,0.1)'}
+        >
+          🚪 Logout
+        </button>
       </div>
     </aside>
   )
