@@ -46,8 +46,8 @@ export default function Login() {
       <div style={{
         position: 'fixed', inset: 0, pointerEvents: 'none',
         background: `
-          radial-gradient(ellipse 600px 400px at 20% 30%, rgba(0,245,196,0.06) 0%, transparent 70%),
-          radial-gradient(ellipse 500px 500px at 80% 70%, rgba(77,159,255,0.05) 0%, transparent 70%)
+          radial-gradient(ellipse 600px 400px at 20% 30%, rgba(166,227,161,0.06) 0%, transparent 70%),
+          radial-gradient(ellipse 500px 500px at 80% 70%, rgba(137,180,250,0.05) 0%, transparent 70%)
         `
       }} />
 
@@ -56,7 +56,7 @@ export default function Login() {
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <div style={{
             fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 800,
-            color: 'var(--neon)', textShadow: '0 0 30px rgba(0,245,196,0.4)',
+            color: 'var(--neon)',
             letterSpacing: -1
           }}>FinTrack</div>
           <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4, fontFamily: 'var(--font-mono)', letterSpacing: 2 }}>
@@ -82,8 +82,8 @@ export default function Login() {
                   fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
                   transition: 'all 0.2s',
                   background: mode === m ? 'var(--neon)' : 'transparent',
-                  color: mode === m ? '#000' : 'var(--muted)',
-                  boxShadow: mode === m ? '0 2px 12px rgba(0,245,196,0.3)' : 'none'
+                  color: mode === m ? '#11111b' : 'var(--muted)',
+                  boxShadow: mode === m ? '0 2px 8px rgba(166,227,161,0.2)' : 'none'
                 }}>
                 {m === 'login' ? '🔑 Login' : '✨ Register'}
               </button>
@@ -127,7 +127,7 @@ export default function Login() {
           {success && (
             <div style={{
               marginTop: 14, padding: '10px 14px', borderRadius: 10,
-              background: 'rgba(0,245,196,0.1)', border: '1px solid rgba(0,245,196,0.2)',
+              background: 'rgba(166,227,161,0.1)', border: '1px solid rgba(166,227,161,0.2)',
               color: 'var(--neon)', fontSize: 13
             }}>✅ {success}</div>
           )}

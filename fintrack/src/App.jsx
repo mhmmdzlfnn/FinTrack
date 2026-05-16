@@ -6,6 +6,7 @@ import Transaksi from './pages/Transaksi'
 import Statistik from './pages/Statistik'
 import Target from './pages/Target'
 import Simulasi from './pages/Simulasi'
+import Pengaturan from './pages/Pengaturan'
 import Login from './pages/Login'
 import './index.css'
 
@@ -42,6 +43,7 @@ function AppLayout() {
           <Route path="/statistik" element={<Statistik />} />
           <Route path="/target" element={<Target />} />
           <Route path="/simulasi" element={<Simulasi />} />
+          <Route path="/pengaturan" element={<Pengaturan />} />
         </Routes>
       </main>
     </div>
