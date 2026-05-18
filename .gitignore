@@ -1,7 +1,12 @@
 node_modules
+<<<<<<< HEAD
 .DS_Store
 dist
 dist-ssr
 *.local
 node_modules/
 dist/
+=======
+dist
+.env
+>>>>>>> 73209a3f2879a52e38646299a9786093be585e1d
