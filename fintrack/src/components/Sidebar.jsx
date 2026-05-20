@@ -1,10 +1,10 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 
 const navItems = [
   { to: '/dashboard', icon: '📊', label: 'Dashboard' },
   { to: '/transaksi', icon: '💳', label: 'Transaksi' },
-  { to: '/statistik', icon: '📈', label: 'Statistik' },
   { to: '/target', icon: '🎯', label: 'Target Tabungan' },
   { to: '/simulasi', icon: '🧮', label: 'Simulasi' },
   { to: '/pengaturan', icon: '⚙️', label: 'Pengaturan' },
@@ -12,91 +12,52 @@ const navItems = [
 
 export default function Sidebar() {
   const { user, signOut } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
 
-  const handleLogout = async () => {
-    await signOut()
-    navigate('/login')
-  }
-
-  // Ambil inisial dari email
   const initials = user?.email?.slice(0, 2).toUpperCase() || 'FT'
   const emailShort = user?.email?.length > 20 ? user.email.slice(0, 18) + '...' : user?.email
 
   return (
-    <aside style={{
-      position: 'fixed', left: 0, top: 0, bottom: 0, width: 220,
-      background: 'var(--surface)', borderRight: '1px solid var(--border)',
-      display: 'flex', flexDirection: 'column', zIndex: 100, padding: '28px 0'
-    }}>
+    <aside className="sidebar">
       {/* Logo */}
-      <div style={{ padding: '0 24px 28px', borderBottom: '1px solid var(--border)', marginBottom: 12 }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800, color: 'var(--neon)' }}>
-          FinTrack
-        </div>
-        <div style={{ fontSize: 11, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'var(--font-mono)', marginTop: 2 }}>
-          Student Finance
-        </div>
+      <div className="sidebar-logo-container">
+        <div className="sidebar-logo-text">FinTrack</div>
+        <div className="sidebar-logo-sub">Student Finance</div>
       </div>
 
       {/* Nav */}
-      <nav style={{ padding: '8px 0', flex: 1 }}>
-        <div style={{ fontSize: 10, color: 'var(--muted)', letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'var(--font-mono)', padding: '8px 24px 4px' }}>
-          Menu
-        </div>
+      <nav className="sidebar-nav">
+        <div className="nav-header">Menu</div>
         {navItems.map(item => (
           <NavLink
             key={item.to}
             to={item.to}
-            style={({ isActive }) => ({
-              display: 'flex', alignItems: 'center', gap: 12,
-              padding: '11px 24px', cursor: 'pointer', transition: 'all 0.2s',
-              textDecoration: 'none', fontSize: 14, fontWeight: 500,
-              color: isActive ? 'var(--neon)' : 'var(--muted)',
-              background: isActive ? 'rgba(166,227,161,0.04)' : 'transparent',
-              borderLeft: isActive ? '3px solid var(--neon)' : '3px solid transparent',
-              boxShadow: 'none',
-            })}
+            className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
           >
-            <span style={{ fontSize: 16 }}>{item.icon}</span>
-            {item.label}
+            <span className="nav-icon">{item.icon}</span>
+            <span className="nav-label">{item.label}</span>
           </NavLink>
         ))}
       </nav>
 
-      {/* User */}
-      <div style={{ padding: '16px 20px', borderTop: '1px solid var(--border)' }}>
-        <NavLink to="/pengaturan" style={{ 
-          display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, 
-          textDecoration: 'none', color: 'inherit', padding: '6px', 
-          borderRadius: 10, transition: 'background 0.2s' 
-        }}
-          onMouseEnter={e => e.currentTarget.style.background = 'var(--surface2)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-        >
-          <div style={{
-            width: 36, height: 36, borderRadius: '50%',
-            background: 'linear-gradient(135deg, var(--neon), var(--neon2))',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 12, fontWeight: 700, color: '#11111b', fontFamily: 'var(--font-display)',
-            flexShrink: 0
-          }}>{initials}</div>
-          <div style={{ overflow: 'hidden' }}>
-            <div style={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{emailShort}</div>
-            <div style={{ fontSize: 11, color: 'var(--muted)' }}>Lihat Profil →</div>
-          </div>
-        </NavLink>
-        <button onClick={handleLogout} style={{
-          width: '100%', padding: '8px 0', background: 'rgba(255,77,109,0.1)',
-          border: '1px solid rgba(255,77,109,0.2)', borderRadius: 8,
-          color: 'var(--red)', fontSize: 12, fontFamily: 'var(--font-body)',
-          fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s'
-        }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,77,109,0.2)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,77,109,0.1)'}
-        >
-          🚪 Logout
+      {/* Theme Toggle — desktop only */}
+      <div className="theme-toggle-row hide-on-mobile">
+        <span style={{ fontSize: 12 }}>{theme === 'dark' ? '🌙 Dark' : '☀️ Light'}</span>
+        <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+          <div className="theme-toggle-thumb" />
         </button>
+      </div>
+
+      {/* User */}
+      <div className="sidebar-user-container">
+        <div className="sidebar-user-card">
+          <div className="user-avatar">{initials}</div>
+          <div className="user-info">
+            <div className="user-email">{emailShort}</div>
+            <div className="user-status">Mahasiswa</div>
+          </div>
+        </div>
       </div>
     </aside>
   )

@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 
 const navItems = [
   { to: '/dashboard', icon: '📊', label: 'Dashboard' },
@@ -11,9 +12,9 @@ const navItems = [
 
 export default function Sidebar() {
   const { user, signOut } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
 
-  // Ambil inisial dari email
   const initials = user?.email?.slice(0, 2).toUpperCase() || 'FT'
   const emailShort = user?.email?.length > 20 ? user.email.slice(0, 18) + '...' : user?.email
 
@@ -39,6 +40,14 @@ export default function Sidebar() {
           </NavLink>
         ))}
       </nav>
+
+      {/* Theme Toggle — desktop only */}
+      <div className="theme-toggle-row hide-on-mobile">
+        <span style={{ fontSize: 12 }}>{theme === 'dark' ? '🌙 Dark' : '☀️ Light'}</span>
+        <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+          <div className="theme-toggle-thumb" />
+        </button>
+      </div>
 
       {/* User */}
       <div className="sidebar-user-container">

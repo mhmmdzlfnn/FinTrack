@@ -3,8 +3,8 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import TransaksiModal from '../components/TransaksiModal'
 
-const catEmoji = { Makan:'🍜', Transport:'🚌', Nongkrong:'☕', Kuota:'📱', Akademik:'📚', Pemasukan:'💰' }
-const catColors = { Makan:'#00f5c4', Transport:'#4d9fff', Nongkrong:'#f5a623', Kuota:'#ff4d6d', Akademik:'#a78bfa', Pemasukan:'#34d399' }
+const catEmoji = { Makan:'🍜', Transport:'🚌', Nongkrong:'☕', Kuota:'📱', Akademik:'📚', Menabung:'🏦', Pemasukan:'💰' }
+const catColors = { Makan:'#60a5fa', Transport:'#34d399', Nongkrong:'#fbbf24', Kuota:'#f87171', Akademik:'#a78bfa', Menabung:'#2dd4bf', Pemasukan:'#4ade80' }
 
 function fmt(n) {
   if (!n) return 'Rp 0'
@@ -71,6 +71,7 @@ export default function Transaksi() {
               <option>Nongkrong</option>
               <option>Kuota</option>
               <option>Akademik</option>
+              <option>Menabung</option>
               <option>Pemasukan</option>
             </select>
           </div>

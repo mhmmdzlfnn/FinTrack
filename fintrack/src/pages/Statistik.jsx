@@ -3,8 +3,8 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, LineChart, Line } from 'recharts'
 
-const catColors = { Makan:'#00f5c4', Transport:'#4d9fff', Nongkrong:'#f5a623', Kuota:'#ff4d6d', Akademik:'#a78bfa', Pemasukan:'#34d399' }
-const catEmoji = { Makan:'🍜', Transport:'🚌', Nongkrong:'☕', Kuota:'📱', Akademik:'📚', Pemasukan:'💰' }
+const catColors = { Makan:'#60a5fa', Transport:'#34d399', Nongkrong:'#fbbf24', Kuota:'#f87171', Akademik:'#a78bfa', Menabung:'#2dd4bf', Pemasukan:'#4ade80' }
+const catEmoji = { Makan:'🍜', Transport:'🚌', Nongkrong:'☕', Kuota:'📱', Akademik:'📚', Menabung:'🏦', Pemasukan:'💰' }
 
 function fmt(n) {
   if (!n) return 'Rp 0'
@@ -134,7 +134,7 @@ export default function Statistik() {
             <XAxis dataKey="label" tick={{ fill: '#6b6b80', fontSize: 11, fontFamily: 'Space Mono' }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: '#6b6b80', fontSize: 10, fontFamily: 'Space Mono' }} axisLine={false} tickLine={false} tickFormatter={fmt} />
             <Tooltip content={<CustomTooltip />} />
-            <Line type="monotone" dataKey="pengeluaran" stroke="#4d9fff" strokeWidth={2} dot={{ fill: '#4d9fff', r: 4 }} />
+            <Line type="monotone" dataKey="pengeluaran" stroke="#60a5fa" strokeWidth={2} dot={{ fill: '#60a5fa', r: 4 }} />
           </LineChart>
         </ResponsiveContainer>
       </div>

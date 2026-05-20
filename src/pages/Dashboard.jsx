@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext'
 import TransaksiModal from '../components/TransaksiModal'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Legend } from 'recharts'
 
-const catEmoji = { Makan:'🍜', Transport:'🚌', Nongkrong:'☕', Kuota:'📱', Akademik:'📚', Pemasukan:'💰' }
-const catColors = { Makan:'#00f5c4', Transport:'#4d9fff', Nongkrong:'#f5a623', Kuota:'#ff4d6d', Akademik:'#a78bfa', Pemasukan:'#34d399' }
+const catEmoji = { Makan:'🍜', Transport:'🚌', Nongkrong:'☕', Kuota:'📱', Akademik:'📚', Menabung:'🏦', Pemasukan:'💰' }
+const catColors = { Makan:'#60a5fa', Transport:'#34d399', Nongkrong:'#fbbf24', Kuota:'#f87171', Akademik:'#a78bfa', Menabung:'#2dd4bf', Pemasukan:'#4ade80' }
 
 function fmt(n) {
   if (!n) return 'Rp 0'
@@ -46,6 +46,24 @@ export default function Dashboard() {
   const expense = transactions.filter(t => t.type === 'pengeluaran').reduce((s, t) => s + t.amount, 0)
   const savings = income - expense
   const score = Math.min(100, Math.max(0, Math.round((savings / (income || 1)) * 100)))
+
+  // Perbandingan bulan ini vs bulan lalu
+  const thisMonth = new Date().toISOString().slice(0, 7)
+  const lastMonthDate = new Date(); lastMonthDate.setMonth(lastMonthDate.getMonth() - 1)
+  const lastMonth = lastMonthDate.toISOString().slice(0, 7)
+
+  const thisIncome  = transactions.filter(t => t.type === 'pemasukan'   && t.date?.startsWith(thisMonth)).reduce((s,t) => s+t.amount, 0)
+  const thisExpense = transactions.filter(t => t.type === 'pengeluaran'  && t.date?.startsWith(thisMonth)).reduce((s,t) => s+t.amount, 0)
+  const lastIncome  = transactions.filter(t => t.type === 'pemasukan'   && t.date?.startsWith(lastMonth)).reduce((s,t) => s+t.amount, 0)
+  const lastExpense = transactions.filter(t => t.type === 'pengeluaran'  && t.date?.startsWith(lastMonth)).reduce((s,t) => s+t.amount, 0)
+
+  const pctChange = (curr, prev) => {
+    if (prev === 0 && curr === 0) return null
+    if (prev === 0) return 100
+    return Math.round(((curr - prev) / prev) * 100)
+  }
+  const incomePct  = pctChange(thisIncome, lastIncome)
+  const expensePct = pctChange(thisExpense, lastExpense)
 
   // Category breakdown
   const catData = Object.entries(
@@ -90,12 +108,26 @@ export default function Dashboard() {
         <div className="stat-card">
           <div className="stat-label">Pemasukan</div>
           <div className="stat-value" style={{ color: 'var(--neon)' }}>{fmt(income)}</div>
-          <div className="stat-change" style={{ color: 'var(--muted)', fontSize: 12, marginTop: 8 }}>Total masuk</div>
+          <div className="stat-change">
+            {incomePct !== null
+              ? <span style={{ color: incomePct >= 0 ? 'var(--neon2)' : 'var(--red)' }}>
+                  {incomePct >= 0 ? '↑' : '↓'} {Math.abs(incomePct)}% vs bulan lalu
+                </span>
+              : <span style={{ color: 'var(--muted)' }}>Bulan ini</span>
+            }
+          </div>
         </div>
         <div className="stat-card">
           <div className="stat-label">Pengeluaran</div>
           <div className="stat-value" style={{ color: 'var(--red)' }}>{fmt(expense)}</div>
-          <div className="stat-change" style={{ color: 'var(--muted)', fontSize: 12, marginTop: 8 }}>Total keluar</div>
+          <div className="stat-change">
+            {expensePct !== null
+              ? <span style={{ color: expensePct <= 0 ? 'var(--neon2)' : 'var(--red)' }}>
+                  {expensePct >= 0 ? '↑' : '↓'} {Math.abs(expensePct)}% vs bulan lalu
+                </span>
+              : <span style={{ color: 'var(--muted)' }}>Bulan ini</span>
+            }
+          </div>
         </div>
         <div className="stat-card">
           <div className="stat-label">Tabungan</div>
@@ -243,8 +275,8 @@ export default function Dashboard() {
               <XAxis dataKey="label" tick={{ fill: '#6b6b80', fontSize: 11, fontFamily: 'Space Mono' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#6b6b80', fontSize: 10, fontFamily: 'Space Mono' }} axisLine={false} tickLine={false} tickFormatter={v => fmt(v)} />
               <Tooltip content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="pemasukan" stroke="#00f5c4" strokeWidth={2} dot={{ fill: '#00f5c4', r: 3 }} />
-              <Line type="monotone" dataKey="pengeluaran" stroke="#ff4d6d" strokeWidth={2} dot={{ fill: '#ff4d6d', r: 3 }} />
+              <Line type="monotone" dataKey="pemasukan" stroke="#34d399" strokeWidth={2} dot={{ fill: '#34d399', r: 3 }} />
+              <Line type="monotone" dataKey="pengeluaran" stroke="#f87171" strokeWidth={2} dot={{ fill: '#f87171', r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>

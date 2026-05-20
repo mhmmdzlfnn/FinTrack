@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
 import Sidebar from './components/Sidebar'
 import Dashboard from './pages/Dashboard'
 import Transaksi from './pages/Transaksi'
-import Statistik from './pages/Statistik'
 import Target from './pages/Target'
 import Simulasi from './pages/Simulasi'
 import Pengaturan from './pages/Pengaturan'
@@ -40,7 +40,6 @@ function AppLayout() {
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/transaksi" element={<Transaksi />} />
-          <Route path="/statistik" element={<Statistik />} />
           <Route path="/target" element={<Target />} />
           <Route path="/simulasi" element={<Simulasi />} />
           <Route path="/pengaturan" element={<Pengaturan />} />
@@ -52,13 +51,15 @@ function AppLayout() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/*" element={<ProtectedRoute><AppLayout /></ProtectedRoute>} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="/*" element={<ProtectedRoute><AppLayout /></ProtectedRoute>} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }

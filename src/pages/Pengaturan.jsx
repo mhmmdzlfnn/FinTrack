@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
 
 export default function Pengaturan() {
   const { user, signOut } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const [password, setPassword] = useState({ new: '', confirm: '' })
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState({ type: '', text: '' })
@@ -107,6 +109,23 @@ export default function Pengaturan() {
                   {prefLoading ? '...' : 'OK'}
                 </button>
               </div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-title">Tampilan</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 500 }}>
+                  {theme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
+                  {theme === 'dark' ? 'Tampilan gelap, nyaman di malam hari' : 'Tampilan terang, cocok di siang hari'}
+                </div>
+              </div>
+              <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+                <div className="theme-toggle-thumb" />
+              </button>
             </div>
           </div>
 

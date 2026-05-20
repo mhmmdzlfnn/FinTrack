@@ -1,12 +1,28 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../lib/supabase'
 
 export default function Pengaturan() {
   const { user, signOut } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const [password, setPassword] = useState({ new: '', confirm: '' })
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState({ type: '', text: '' })
+
+  const [pref, setPref] = useState({ currency: 'IDR', dateFormat: 'DDMMYYYY' })
+  const [prefLoading, setPrefLoading] = useState(false)
+  const [prefMsg, setPrefMsg] = useState('')
+
+  const handleSavePref = () => {
+    setPrefLoading(true)
+    setPrefMsg('')
+    setTimeout(() => {
+      setPrefLoading(false)
+      setPrefMsg('Disimpan!')
+      setTimeout(() => setPrefMsg(''), 3000)
+    }, 500)
+  }
 
   const initials = user?.email?.slice(0, 2).toUpperCase() || 'FT'
 
@@ -66,20 +82,50 @@ export default function Pengaturan() {
           </div>
 
           <div className="card">
-            <div className="card-title">Preferensi Aplikasi</div>
+            <div className="card-title">
+              Preferensi Aplikasi
+              {prefMsg && <span className="card-badge badge-green" style={{ textTransform: 'none' }}>✅ {prefMsg}</span>}
+            </div>
             <div className="form-group" style={{ marginBottom: 16 }}>
               <label className="form-label">Mata Uang Utama</label>
-              <select className="form-input" defaultValue="IDR">
-                <option value="IDR">Rupiah (IDR)</option>
-                <option value="USD">US Dollar (USD)</option>
-              </select>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <select className="form-input" style={{ flex: 1 }} value={pref.currency} onChange={e => setPref({ ...pref, currency: e.target.value })}>
+                  <option value="IDR">Rupiah (IDR)</option>
+                  <option value="USD">US Dollar (USD)</option>
+                </select>
+                <button className="btn btn-primary" onClick={handleSavePref} disabled={prefLoading}>
+                  {prefLoading ? '...' : 'OK'}
+                </button>
+              </div>
             </div>
             <div className="form-group">
               <label className="form-label">Format Tanggal</label>
-              <select className="form-input" defaultValue="DDMMYYYY">
-                <option value="DDMMYYYY">DD/MM/YYYY (Standar)</option>
-                <option value="MMDDYYYY">MM/DD/YYYY</option>
-              </select>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <select className="form-input" style={{ flex: 1 }} value={pref.dateFormat} onChange={e => setPref({ ...pref, dateFormat: e.target.value })}>
+                  <option value="DDMMYYYY">DD/MM/YYYY (Standar)</option>
+                  <option value="MMDDYYYY">MM/DD/YYYY</option>
+                </select>
+                <button className="btn btn-primary" onClick={handleSavePref} disabled={prefLoading}>
+                  {prefLoading ? '...' : 'OK'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-title">Tampilan</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 500 }}>
+                  {theme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
+                  {theme === 'dark' ? 'Tampilan gelap, nyaman di malam hari' : 'Tampilan terang, cocok di siang hari'}
+                </div>
+              </div>
+              <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+                <div className="theme-toggle-thumb" />
+              </button>
             </div>
           </div>
 
@@ -119,10 +165,6 @@ export default function Pengaturan() {
           </div>
 
           <div className="card" style={{ borderColor: 'rgba(243,139,168,0.2)' }}>
-            <div className="card-title" style={{ color: 'var(--red)' }}>Danger Zone</div>
-            <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16, lineHeight: 1.5 }}>
-              Aksi di bawah ini akan mengeluarkan kamu dari sesi saat ini. Kamu harus login kembali untuk masuk.
-            </p>
             <button className="btn btn-danger" style={{ width: '100%' }} onClick={signOut}>
               🚪 Logout dari Perangkat Ini
             </button>

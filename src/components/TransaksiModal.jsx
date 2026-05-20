@@ -50,6 +50,7 @@ export default function TransaksiModal({ onClose, onSuccess }) {
               <option>Nongkrong</option>
               <option>Kuota</option>
               <option>Akademik</option>
+              <option>Menabung</option>
               <option>Pemasukan</option>
             </select>
           </div>

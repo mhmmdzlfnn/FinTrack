@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext'
 import TransaksiModal from '../components/TransaksiModal'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Legend } from 'recharts'
 
-const catEmoji = { Makan:'🍜', Transport:'🚌', Nongkrong:'☕', Kuota:'📱', Akademik:'📚', Pemasukan:'💰' }
-const catColors = { Makan:'#00f5c4', Transport:'#4d9fff', Nongkrong:'#f5a623', Kuota:'#ff4d6d', Akademik:'#a78bfa', Pemasukan:'#34d399' }
+const catEmoji = { Makan:'🍜', Transport:'🚌', Nongkrong:'☕', Kuota:'📱', Akademik:'📚', Menabung:'🏦', Pemasukan:'💰' }
+const catColors = { Makan:'#60a5fa', Transport:'#34d399', Nongkrong:'#fbbf24', Kuota:'#f87171', Akademik:'#a78bfa', Menabung:'#2dd4bf', Pemasukan:'#4ade80' }
 
 function fmt(n) {
   if (!n) return 'Rp 0'
@@ -47,13 +47,34 @@ export default function Dashboard() {
   const savings = income - expense
   const score = Math.min(100, Math.max(0, Math.round((savings / (income || 1)) * 100)))
 
+  // Perbandingan bulan ini vs bulan lalu
+  const thisMonth = new Date().toISOString().slice(0, 7)
+  const lastMonthDate = new Date(); lastMonthDate.setMonth(lastMonthDate.getMonth() - 1)
+  const lastMonth = lastMonthDate.toISOString().slice(0, 7)
+
+  const thisIncome  = transactions.filter(t => t.type === 'pemasukan'   && t.date?.startsWith(thisMonth)).reduce((s,t) => s+t.amount, 0)
+  const thisExpense = transactions.filter(t => t.type === 'pengeluaran'  && t.date?.startsWith(thisMonth)).reduce((s,t) => s+t.amount, 0)
+  const lastIncome  = transactions.filter(t => t.type === 'pemasukan'   && t.date?.startsWith(lastMonth)).reduce((s,t) => s+t.amount, 0)
+  const lastExpense = transactions.filter(t => t.type === 'pengeluaran'  && t.date?.startsWith(lastMonth)).reduce((s,t) => s+t.amount, 0)
+
+  const pctChange = (curr, prev) => {
+    if (prev === 0 && curr === 0) return null
+    if (prev === 0) return 100
+    return Math.round(((curr - prev) / prev) * 100)
+  }
+  const incomePct  = pctChange(thisIncome, lastIncome)
+  const expensePct = pctChange(thisExpense, lastExpense)
+
   // Category breakdown
   const catData = Object.entries(
     transactions.filter(t => t.type === 'pengeluaran').reduce((acc, t) => {
       acc[t.cat] = (acc[t.cat] || 0) + t.amount
       return acc
     }, {})
-  ).map(([name, value]) => ({ name, value }))
+  ).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value)
+
+  const topCat = catData[0]
+  const saveRate = income > 0 ? Math.round(((income - expense) / income) * 100) : 0
 
   // Monthly trend (last 6 months)
   const monthlyData = (() => {
@@ -79,7 +100,7 @@ export default function Dashboard() {
           <h1 className="page-title">Dashboard</h1>
           <p className="page-subtitle">{new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })} — Ringkasan keuanganmu</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>+ Tambah Transaksi</button>
+        <button className="btn btn-primary hide-on-mobile" onClick={() => setShowModal(true)}>+ Tambah Transaksi</button>
       </div>
 
       {/* STATS */}
@@ -87,12 +108,26 @@ export default function Dashboard() {
         <div className="stat-card">
           <div className="stat-label">Pemasukan</div>
           <div className="stat-value" style={{ color: 'var(--neon)' }}>{fmt(income)}</div>
-          <div className="stat-change" style={{ color: 'var(--muted)', fontSize: 12, marginTop: 8 }}>Total masuk</div>
+          <div className="stat-change">
+            {incomePct !== null
+              ? <span style={{ color: incomePct >= 0 ? 'var(--neon2)' : 'var(--red)' }}>
+                  {incomePct >= 0 ? '↑' : '↓'} {Math.abs(incomePct)}% vs bulan lalu
+                </span>
+              : <span style={{ color: 'var(--muted)' }}>Bulan ini</span>
+            }
+          </div>
         </div>
         <div className="stat-card">
           <div className="stat-label">Pengeluaran</div>
           <div className="stat-value" style={{ color: 'var(--red)' }}>{fmt(expense)}</div>
-          <div className="stat-change" style={{ color: 'var(--muted)', fontSize: 12, marginTop: 8 }}>Total keluar</div>
+          <div className="stat-change">
+            {expensePct !== null
+              ? <span style={{ color: expensePct <= 0 ? 'var(--neon2)' : 'var(--red)' }}>
+                  {expensePct >= 0 ? '↑' : '↓'} {Math.abs(expensePct)}% vs bulan lalu
+                </span>
+              : <span style={{ color: 'var(--muted)' }}>Bulan ini</span>
+            }
+          </div>
         </div>
         <div className="stat-card">
           <div className="stat-label">Tabungan</div>
@@ -106,6 +141,13 @@ export default function Dashboard() {
             <div className="score-fill" style={{ width: score + '%' }} />
           </div>
         </div>
+      </div>
+
+      {/* MOBILE ONLY: Tombol tambah transaksi dipindah ke sini */}
+      <div className="show-on-mobile" style={{ marginBottom: 20 }}>
+        <button className="btn btn-primary" style={{ width: '100%', padding: '14px 0', fontSize: 14 }} onClick={() => setShowModal(true)}>
+          + Tambah Transaksi
+        </button>
       </div>
 
       {/* CHARTS ROW */}
@@ -148,6 +190,52 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* ANALISIS & INSIGHT (Dari Statistik) */}
+      <div className="grid-2">
+        <div className="card">
+          <div className="card-title">Insight Otomatis</div>
+          <div>
+            {topCat ? (
+              <div className="score-tip good">🏆 Pengeluaran terbesar ada di <strong>{topCat.name}</strong> ({fmt(topCat.value)})</div>
+            ) : null}
+            <div className={`score-tip ${saveRate >= 20 ? 'good' : saveRate >= 0 ? 'warn' : 'bad'}`} style={{ marginTop: 8 }}>
+              💰 Saving rate kamu: <strong>{saveRate}%</strong>
+              {saveRate >= 20 ? ' — bagus!' : saveRate >= 0 ? ' — bisa lebih baik' : ' — waspada!'}
+            </div>
+            {catData.length > 1 && (
+              <div className="score-tip warn" style={{ marginTop: 8 }}>
+                📊 Kamu punya <strong>{catData.length}</strong> kategori pengeluaran aktif
+              </div>
+            )}
+            <div className="score-tip good" style={{ marginTop: 8 }}>
+              📝 Total <strong>{transactions.length}</strong> transaksi tercatat
+            </div>
+          </div>
+        </div>
+
+        {catData.length > 0 ? (
+          <div className="card">
+            <div className="card-title">Detail per Kategori</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+              {catData.slice(0, 6).map(cat => (
+                <div key={cat.name} style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: '12px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 20 }}>{catEmoji[cat.name] || '💸'}</span>
+                  <div>
+                    <div style={{ fontSize: 12, fontWeight: 500 }}>{cat.name}</div>
+                    <div style={{ fontSize: 11, color: catColors[cat.name] || 'var(--muted)', fontFamily: 'var(--font-mono)', marginTop: 2 }}>{fmt(cat.value)}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="card">
+            <div className="card-title">Detail per Kategori</div>
+            <div className="empty-state" style={{ padding: '24px' }}><div className="empty-text">Belum ada data</div></div>
+          </div>
+        )}
+      </div>
+
       {/* BOTTOM ROW */}
       <div className="grid-2">
         <div className="card">
@@ -187,8 +275,8 @@ export default function Dashboard() {
               <XAxis dataKey="label" tick={{ fill: '#6b6b80', fontSize: 11, fontFamily: 'Space Mono' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#6b6b80', fontSize: 10, fontFamily: 'Space Mono' }} axisLine={false} tickLine={false} tickFormatter={v => fmt(v)} />
               <Tooltip content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="pemasukan" stroke="#00f5c4" strokeWidth={2} dot={{ fill: '#00f5c4', r: 3 }} />
-              <Line type="monotone" dataKey="pengeluaran" stroke="#ff4d6d" strokeWidth={2} dot={{ fill: '#ff4d6d', r: 3 }} />
+              <Line type="monotone" dataKey="pemasukan" stroke="#34d399" strokeWidth={2} dot={{ fill: '#34d399', r: 3 }} />
+              <Line type="monotone" dataKey="pengeluaran" stroke="#f87171" strokeWidth={2} dot={{ fill: '#f87171', r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
