@@ -8,18 +8,57 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Cek session yang sudah ada
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
+    let active = true
 
-    // Listen perubahan auth
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
+    async function initAuth() {
+      const timeout = new Promise((resolve) => 
+        setTimeout(() => resolve({ data: { session: null }, error: new Error("Supabase auth timeout after 2.5s") }), 2500)
+      )
 
-    return () => subscription.unsubscribe()
+      try {
+        const { data, error } = await Promise.race([
+          supabase.auth.getSession(),
+          timeout
+        ])
+        if (error) {
+          console.error("Supabase session error:", error)
+        }
+        if (active) {
+          setUser(data?.session?.user ?? null)
+        }
+      } catch (err) {
+        console.error("Failed to get Supabase session:", err)
+        if (active) {
+          setUser(null)
+        }
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
+      }
+    }
+
+    initAuth()
+
+    let subscription = null
+    try {
+      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (active) {
+          setUser(session?.user ?? null)
+          setLoading(false)
+        }
+      })
+      subscription = data?.subscription
+    } catch (err) {
+      console.error("Failed to setup auth state change listener:", err)
+    }
+
+    return () => {
+      active = false
+      if (subscription) {
+        subscription.unsubscribe()
+      }
+    }
   }, [])
 
   const signUp = async (email, password) => {
